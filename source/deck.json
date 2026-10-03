@@ -1,0 +1,66 @@
+{
+  "title": "Beyond the Dropdown: Audio Codecs for Game Audio",
+  "order": [
+    "cover",
+    "about",
+    "motivation",
+    "stakes",
+    "div-basics",
+    "render-loop",
+    "voice-path",
+    "pcm",
+    "why-codecs",
+    "codec-anatomy",
+    "codec-vocab",
+    "div-problems",
+    "samples",
+    "memory",
+    "voip",
+    "streaming",
+    "hardware",
+    "lineage",
+    "legacy",
+    "div-modern",
+    "toolbox",
+    "opus-vorbis",
+    "platform",
+    "beyond-build",
+    "rule",
+    "framework",
+    "checklist",
+    "div-frontier",
+    "apac",
+    "neural",
+    "llm-codecs",
+    "barriers",
+    "landing",
+    "takeaways",
+    "thanks"
+  ],
+  "sections": {
+    "s1": {
+      "description": "Who is speaking, why this talk, and what a codec setting affects",
+      "start": "cover"
+    },
+    "s2": {
+      "description": "Audio rendering basics and how codecs work",
+      "start": "div-basics"
+    },
+    "s3": {
+      "description": "The problems codecs solve in games: samples, memory, voice chat, streaming and hardware, with a short history",
+      "start": "div-problems"
+    },
+    "s4": {
+      "description": "The modern toolbox: Opus, Vorbis, AAC, XMA, ATRAC9 and a decision framework",
+      "start": "div-modern"
+    },
+    "s5": {
+      "description": "The frontier: APAC and neural audio codecs, honestly assessed",
+      "start": "div-frontier"
+    },
+    "s6": {
+      "description": "Takeaways and questions",
+      "start": "takeaways"
+    }
+  }
+}
