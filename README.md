@@ -1,5 +1,8 @@
 # Beyond the Dropdown: Audio Codecs for Game Audio
 
+Repository: [from-adpcm-to-ai](https://github.com/collinschupman/from-adpcm-to-ai).
+The local project directory is `from-adpcm-to-ai`.
+
 Slides for Collin Schupman's talk at GameSoundCon, Wednesday, October 21, 2026.
 
 Audio codecs form the foundation of every audio choice in a game: file size, streaming performance, memory budgets, platform compliance, and, ultimately, what players hear. Yet for many game audio professionals, codec selection remains a black box: a dropdown menu in middleware. This talk aims to change that.
