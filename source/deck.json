@@ -1,23 +1,24 @@
 {
-  "title": "Beyond the Dropdown: Audio Codecs for Game Audio",
+  "title": "From ADPCM to AI: The Past, Present and Future of Game Audio Codecs",
   "order": [
     "cover",
     "about",
     "motivation",
-    "stakes",
+    "titanfall",
     "div-basics",
-    "render-loop",
-    "voice-path",
+    "pcm-what",
     "pcm",
-    "why-codecs",
+    "pcm-streaming",
+    "codec-basics",
+    "stakes",
+    "voice-path",
     "codec-anatomy",
-    "codec-vocab",
-    "div-problems",
     "samples",
     "memory",
     "voip",
     "streaming",
     "hardware",
+    "div-past",
     "lineage",
     "legacy",
     "div-modern",
@@ -30,32 +31,34 @@
     "checklist",
     "div-frontier",
     "apac",
+    "qoa",
     "neural",
     "llm-codecs",
     "barriers",
+    "opus-16",
     "landing",
     "takeaways",
     "thanks"
   ],
   "sections": {
     "s1": {
-      "description": "Who is speaking, why this talk, and what a codec setting affects",
+      "description": "Who is speaking, why this talk, and Titanfall as an example of a codec tradeoff",
       "start": "cover"
     },
     "s2": {
-      "description": "Audio rendering basics and how codecs work",
+      "description": "Raw PCM and its cost, codec basics, what a codec setting affects, the path of a voice, how a perceptual codec works, and the problems codecs solve in games: samples, memory, voice chat, streaming and hardware",
       "start": "div-basics"
     },
     "s3": {
-      "description": "The problems codecs solve in games: samples, memory, voice chat, streaming and hardware, with a short history",
-      "start": "div-problems"
+      "description": "The past: a short history of game audio codecs, then ADPCM and MP3",
+      "start": "div-past"
     },
     "s4": {
       "description": "The modern toolbox: Opus, Vorbis, AAC, XMA, ATRAC9 and a decision framework",
       "start": "div-modern"
     },
     "s5": {
-      "description": "The frontier: APAC and neural audio codecs, honestly assessed",
+      "description": "The frontier: APAC, QOA, neural audio codecs and Opus 1.6, honestly assessed",
       "start": "div-frontier"
     },
     "s6": {
