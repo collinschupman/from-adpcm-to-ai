@@ -1,6 +1,6 @@
 # Speaker notes
 
-Demystifying Game Audio Codecs: What they solve, how to choose, and what's next
+Demystifying Game Audio Codecs: A Practical Guide
 
 ## 1. Demystifying Game Audio Codecs
 
