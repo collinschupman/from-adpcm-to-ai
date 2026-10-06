@@ -30,12 +30,13 @@
     "framework",
     "checklist",
     "div-frontier",
-    "apac",
     "qoa",
-    "neural",
-    "llm-codecs",
-    "barriers",
+    "spatial-delivery",
     "opus-16",
+    "ivas",
+    "neural",
+    "ai-voices",
+    "barriers",
     "landing",
     "takeaways",
     "thanks"
@@ -58,7 +59,7 @@
       "start": "div-modern"
     },
     "s5": {
-      "description": "The frontier: APAC, QOA, neural audio codecs and Opus 1.6, honestly assessed",
+      "description": "The frontier, arranged by the problem each technology might solve: sound effects in memory (QOA), spatial delivery (APAC and IAMF), voice chat (Opus 1.6, IVAS, neural codecs) and generated voices, then barriers and outlook",
       "start": "div-frontier"
     },
     "s6": {

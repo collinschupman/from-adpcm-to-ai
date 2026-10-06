@@ -1,0 +1,26 @@
+<section id="iamf" style="background:#F7F6F2;color:#161616;font-family:'Libre Franklin', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:40px">
+<h2 style="font-size:56px;font-weight:700;line-height:1.1;letter-spacing:-1px;color:#161616">IAMF: an open container for immersive audio</h2>
+<div style="display:flex;align-items:start;gap:96px"><div style="display:flex;flex-direction:column;gap:4px"><p style="font-family:'IBM Plex Mono', 'Courier New', monospace;font-size:56px;font-weight:500;line-height:1.1;color:#C2320A">4 codecs</p><p style="font-size:24px;color:#5C5C5C">inside: Opus, AAC-LC, FLAC or PCM</p></div><div style="display:flex;flex-direction:column;gap:4px"><p style="font-family:'IBM Plex Mono', 'Courier New', monospace;font-size:56px;font-weight:500;line-height:1.1;color:#161616">v1.1</p><p style="font-size:24px;color:#5C5C5C">final specification, October 2024</p></div><div style="display:flex;flex-direction:column;gap:4px"><p style="font-family:'IBM Plex Mono', 'Courier New', monospace;font-size:56px;font-weight:500;line-height:1.1;color:#161616">2025</p><p style="font-size:24px;color:#5C5C5C">on YouTube and Samsung TVs</p></div></div>
+<div style="display:flex">
+<div style="flex:1.3;display:flex;flex-direction:column;gap:12px;padding:0px 64px 0px 0px">
+<ul style="font-size:28px;line-height:1.45">
+<li>Immersive Audio Model and Formats, from the Alliance for Open Media, the group behind AV1.</li>
+<li>Not a codec: a container and mixing model around codecs you already know.</li>
+<li>Carries channel layouts such as 7.1.4 and Ambisonics, with instructions for mixing, rendering and loudness.</li>
+<li>Royalty-free. Google and Samsung ship it as Eclipsa Audio.</li>
+</ul>
+<p style="font-family:'IBM Plex Mono', 'Courier New', monospace;font-size:24px;line-height:1.4;padding:8px 0px 0px 0px"><a href="https://aomediacodec.github.io/iamf/v1.1.0.html" target="_blank" rel="noopener" onclick="event.stopPropagation()" style="color:#C2320A;text-decoration:underline">aomediacodec.github.io/iamf</a></p>
+</div>
+<div style="flex:1;display:flex;flex-direction:column;gap:12px;padding:0px 0px 0px 64px;border-left:1px solid #CFCBC2">
+<h3 style="font-size:36px;font-weight:700;line-height:1.2;color:#161616">For game audio</h3>
+<ul style="font-size:28px;line-height:1.45">
+<li>The spec names gaming as a target, next to streaming and VR.</li>
+<li>It wraps Opus, AAC or FLAC, so the decoders are ones you may already ship.</li>
+<li>Like APAC, it delivers a finished mix. Your engine still renders the interactive one.</li>
+</ul>
+</div>
+</div>
+<p style="position:absolute;left:128px;bottom:64px;width:1000px;font-size:24px;color:#5C5C5C">The frontier</p>
+<p style="position:absolute;right:128px;bottom:64px;width:200px;font-size:24px;text-align:right;font-family:'IBM Plex Mono', 'Courier New', monospace;color:#5C5C5C">31</p>
+<aside>~1.5 min. The open counterpart to APAC. IAMF (Immersive Audio Model and Formats) comes from the Alliance for Open Media, the group behind the AV1 video codec; version 1.1.0 is an AOM Final Deliverable dated 24 October 2024. The key point for this room: IAMF is not a codec. It is a model and container that wraps existing codecs (Opus, AAC-LC, FLAC or linear PCM) and adds the metadata to turn their streams into an immersive presentation. Two terms from the spec: an audio element is a 3D audio signal built from one or more coded substreams, either channel-based (layouts such as 3.1.2, 5.1.2 and 7.1.4) or scene-based (Ambisonics); a mix presentation describes how the elements are rendered and mixed for playback on a given setup, and carries loudness information. It can be stored as a standalone sequence or inside MP4 (ISO-BMFF), and has three profiles: Simple, Base and Base-Enhanced. The spec lists its targets as internet audio streaming, broadcasting, file download, gaming, communication, and virtual and augmented reality. Adoption: Google and Samsung announced Eclipsa Audio in January 2025, an open-source spatial audio format based on IAMF under the AOM royalty-free licence, with YouTube uploads and Samsung's 2025 TV line-up named first, Chrome and Android to follow, and a free Pro Tools plugin. Honest take for games: gaming is named as a target, but what exists today is delivery of finished mixes, so think trailers, cinematics and video, the same slot as APAC. I did not find object-based audio in this version of the spec, and could not confirm the per-profile channel limits, so do not quote either. The AV1 connection is from general knowledge. Sources: https://aomediacodec.github.io/iamf/v1.1.0.html and https://opensource.googleblog.com/2025/01/introducing-eclipsa-audio-immersive-audio-for-everyone.html</aside>
+</section>
