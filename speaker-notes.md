@@ -4,156 +4,160 @@ From ADPCM to AI: The Past, Present and Future of Game Audio Codecs
 
 ## 1. From ADPCM to AI
 
-~30 sec. Name and title only; the bio is the next slide. The promise: by the end, the codec dropdown in your middleware stops being a black box, and you leave with a framework you can apply on Monday.
+Hi everyone, and welcome. Let's get started. Thanks for coming to ~Title~. I'm Collin Schupman, an engineer in the gaming world, where I work mostly on audio technology. So you know where I'm coming from, here are some of the places I've worked and the tech I've used in games.
 
 ## 2. About me
 
-~30 sec. Keep it quick: Unity and Wwise at Gas Powered Games, proprietary engine tech on Call of Duty at High Moon, and Unreal Audio and Wwise at Riot today. The point for this audience: you've dealt with codecs in both commercial middleware and proprietary engines, which sets up the next slide.
+I've spent time both building custom game engines and tools, and building tech around existing solutions. Specifically, I've worked on spatial audio, rendering, platform adoption, pipeline tooling, and codecs. So, why am I up here talking with you about codecs today?
 
 ## 3. Why this talk
 
-~45 sec. Why you're giving this talk. Codec tech can feel intimidating, especially on a team without a big audio programming group: people pick one from a dropdown without knowing what it does, yet that choice has a real impact on the project. You've seen this in both proprietary engines and commercial ones (Unreal, Wwise). Then the roadmap in five beats: how codecs work, the problems they solve, how they came about, how they're used today, and how they might be used in the near future. End on the promise: they leave with a better understanding, and a decision order they can apply to their own project on Monday. The next slide is a real example of that: Titanfall. [Optional: a specific moment where you saw this gap, e.g. a question a teammate asked or a bug that came from a default setting.]
+In my experience, audio technology in games is underappreciated for how deep it goes, and codecs are a great example. I've worked on teams where even experienced sound designers weren't sure what they were really choosing when they picked a codec in the engine, because it's usually just a dropdown. Having gone deep on things like bringing up new codecs, I figured I could help demystify them for teams trying to ship high-quality audio. So, how are we going to do that?
 
-## 4. A tradeoff in the wild: Titanfall
+## 4. Outline
 
-~1 min. A real example of a codec decision shaping how a game ships and runs. Titanfall shipped on PC in March 2014 with a 48 GB install, and 35 GB of that was uncompressed audio. Respawn's lead engineer Richard Baker told Eurogamer why: decoding compressed audio costs CPU, and on a two-core minimum-spec PC they couldn't spare it. He also said it would not have been an issue on a mid-range or high-end PC. So they traded disk for CPU: file size got much worse so that decode cost could go to zero. The point is not that it was right or wrong; it was a deliberate choice that moved file size, CPU cost and the min-spec experience all at once. The basics section comes back to the general version of that tradeoff. Source: The Escapist, 14 March 2014, reporting on a Eurogamer interview: https://www.escapistmagazine.com/titanfall-dev-explains-the-games-35-gb-of-uncompressed-audio/
+I've divided the talk into a few sections. We won't go too deep on the technical side, and I won't be showing any code. But I do want to lay a basic foundation for understanding the problems audio codecs are meant to solve. From there, we'll look briefly at the history of audio codecs in games, starting around the time sample-based playback became the dominant way game audio is played, and at how some of those formats and technologies persist today. Then we'll move into the modern era: what's available for teams to work with now, and strategies for adopting it on a project. Finally, we'll peek at the frontier: what codec tech is on the horizon, and what game teams and game tech companies should keep an eye on. But first, a quick story that we'll tie everything back to at the end.
 
-## 5. The basics
+## 5. A tradeoff in the wild: Titanfall
 
-Transition. About 16 minutes for this section: what raw PCM is, how big it gets and why streaming it from disk or over a network is hard, codec basics and the kinds of codec, what a codec setting affects, the path of a voice, and how a perceptual codec works. Then the problems codecs had to solve in games: samples, memory, voice chat, streaming and hardware.
+In 2014, the original Titanfall shipped on PC with about 73% of its install size taken up by uncompressed audio. Here you can see the justification from one of the lead engineers: on the minimum-spec machine they were targeting, they couldn't spare the resources to decode audio. But what does that actually mean?
 
-## 6. Raw PCM audio
+## 6. The basics
+
+Well, to answer that, we're going to dive a bit into what audio data is, how something like a game engine works with it, and why that creates the need for some kind of compression technology, or at least what tradeoffs one brings. We'll start with a quick breakdown of what audio data actually is.
+
+## 7. Raw PCM audio
 
 ~1 min. Start from zero. Raw PCM (pulse-code modulation) is the waveform written down as numbers: it is what a WAV file holds, and what the mixer works on. Three settings define it. Sample rate is how often the wave is measured, bit depth is how precisely each measurement is stored, and channel count is how many waveforms play together. The diagram shows the grey wave, the dots where it is measured, and each dot rounded to the nearest level (real 16-bit audio has 65,536 levels, far too fine to draw). Nothing is thrown away, which is why PCM is the quality reference, and also why it is huge. The next slide puts numbers on that.
 
-## 7. The cost of PCM: memory
+## 8. The cost of PCM: memory
 
 ~1.5 min. How massive it gets. Multiply the three settings from the previous slide: 48 kHz × 16-bit × stereo = 1,536 kbps. Divide by 8 for bytes: 192 KB every second, 11.5 MB a minute, 691 MB an hour; 5.1 has six channels, so 576 KB a second and 2.07 GB an hour. Sizes here use decimal units (1 MB = 1,000,000 bytes); in the binary units Windows shows, a minute is 11.0 MB and an hour is 659 MB. Then multiply by variations, localized VO and platforms. For scale: the PlayStation 2 launched in 2000 with 2 MB of sound RAM for everything a game had loaded. One minute of today's 48 kHz 16-bit stereo PCM is 11.5 MB, more than five times that (about 5.5×), and the PS2's sound RAM would hold only about 11 seconds of it (its 2 MB is 2,097,152 bytes, at 192,000 bytes per second). The PS2 itself stored 4-bit ADPCM, which comes back later in this section. This is also how Titanfall reached 35 GB of audio. The next slide covers the usual workaround, streaming, and why it only moves the problem.
 
-## 8. The cost of PCM: streaming
+## 9. The cost of PCM: streaming
 
 ~1.5 min. "Streaming" means two different things in games, and raw PCM is a problem for both. First, from disk: the obvious answer to "PCM is too big for RAM" is to read it from disk as it plays. That fixes RAM and not much else. One stereo stream of 48 kHz 16-bit PCM is a constant 192 KB per second; eight of them (music layers, ambiences, a VO line) is about 1.5 MB per second on the same I/O queue the game uses for textures and geometry. On hard drives and optical discs the bigger cost is seeking between streams. Each stream also needs a RAM buffer (2 seconds of stereo PCM is 384 KB), and a late read is an audible dropout. Disk and patch size are unchanged: this is the Titanfall trade from the intro, 35 GB of audio in exchange for zero decode CPU. Second, over a network: voice chat, livestreams, cloud gaming. One mono voice at 48 kHz 16-bit is 768 kbps, and every talker sends that upstream alongside the game's own traffic. A 20 ms frame of mono PCM is 1,920 bytes (960 samples at 2 bytes each), more than the roughly 1,500 bytes a typical internet packet carries, so every frame is split across packets and is easier to lose. PCM has no built-in way to hide a lost packet, and no way to drop to a lower bitrate when the connection gets worse. Speech codecs are designed for exactly those two things; the voice chat slide comes back to this. The eight-stream figure is an illustration, not a measurement, and the 1,500-byte packet size is from general knowledge; verify before presenting. [Add: your own project's typical stream count, or a streaming problem you have hit.]
 
-## 9. Codec basics
+## 10. Codec basics
 
 ~2.5 min. Shared vocabulary, nothing more. The goal is that everyone in the room can follow the rest of the talk, whether or not they write code. A codec is a coder plus a decoder. For game assets the encode happens once, on a build machine, and the decode happens on the player's device every time the sound plays, which is why decode cost matters far more than encode cost. (Voice chat is the exception: it encodes live.) Then the kinds. Lossless (FLAC) predicts each sample and stores the error exactly, so everything comes back but the savings are modest. Lossy codecs come in two families. Predictive ones like ADPCM do the same prediction but store only a rough, 4-bit version of the error: a fixed 4:1, a little noise, and almost no CPU to decode. Perceptual ones like Vorbis, Opus and AAC move to the frequency domain and spend bits according to what the ear can hear, so they get much smaller and cost more CPU and latency. The mental model for the rest of the talk: every codec trades bits for something. Bitrate: 1,536 kbps for stereo PCM against roughly 64 to 160 kbps for a perceptual codec; 128 kbps works out to about 1 MB a minute, a compression ratio of 12:1. Many tools show a "quality" slider instead of a bitrate, which is variable bitrate under the hood: more bits where the sound is busy. Three more terms come up later and are easier to explain where they matter: frame size (samples per coded block; it sets latency and how finely playback can seek), encoder delay (extra samples at the start; left untrimmed, they break seamless loops) and seek tables (an index so playback can start mid-file).
 
-## 10. What a codec setting affects
+## 11. What a codec setting affects
 
 ~1.5 min. After the size of raw PCM and the limits of streaming it, that pressure is why codecs exist. This is the general version of the Titanfall trade. Start with the question to the room: who has changed codec settings per asset rather than per project? Usually few hands. Then walk the five consequences quickly. That's the gap this talk fills.
 
-## 11. The path of one voice
+## 12. The path of one voice
 
 ~1.5 min. Top row: the path of one voice through the engine each buffer. A voice is one playing sound. (The engine produces audio in small blocks called buffers, typically 1,024 samples, about 21 ms at 48 kHz, and every step here has to finish inside that time or players hear a click or dropout.) The codec lives in the Decode step, turning compressed bytes back into PCM before anything else can touch it; resampling, effects, spatialization and mixing all work on PCM. Bottom row: the three places a source can live, which is the other half of the codec decision. Decoded in memory = pay RAM, no CPU. Compressed in memory = decode while playing, cost scales with voice count. Streamed = smallest footprint, but adds disk I/O and start-up latency. Engines name these differently (Wwise: in-memory vs. streamed; Unreal: loading behavior on the sound wave), but the tradeoff is the same. This sets up the decision framework later.
 
-## 12. Inside a perceptual codec
+## 13. Inside a perceptual codec
 
 ~1.5 min. How Vorbis, Opus, AAC, XMA and ATRAC9 all work at heart. 1) Frame: chop the signal into overlapping blocks. 2) Transform: MDCT turns each block into frequency coefficients. 3) Quantize: a psychoacoustic model decides how coarsely each frequency band can be stored; this is the only step that throws information away. 4) Pack: entropy coding (Huffman or range coding) squeezes the numbers losslessly into the bitstream. Masking is why step 3 works: a loud tone hides quieter sounds near it in frequency, and briefly before and after it in time. Encoding is asymmetric by design: the encoder does the hard thinking offline, the decoder just reverses the steps (unpack, rescale, inverse transform, overlap-add), which ties back to the voice path slide. ADPCM skips all of this: it predicts each sample and stores the error in 4 bits.
 
-## 13. Sample-based audio
+## 14. Sample-based audio
 
 ~1.5 min. The first problem. Early consoles made sound by synthesis: square waves, noise, FM. When hardware could play back recorded samples, audio suddenly needed memory, and there was almost none. The SNES had 64 KB of audio RAM for everything, so its samples were stored as BRR, an ADPCM-style format that packs 16 samples into 9 bytes (about 3.5:1). The PlayStation's sound chip had 512 KB and decoded 4-bit ADPCM on 24 voices; longer music and speech streamed from the CD as XA-ADPCM. The PS2 kept the same idea with 2 MB and 48 voices. By the Xbox 360, a perceptual codec (XMA) was decoded by the console's audio hardware. Hardware figures are from general knowledge; verify before presenting.
 
-## 14. Memory and disk
+## 15. Memory and disk
 
 ~1 min. The second problem, and it never went away. All numbers here are computed: 100 MB holds 8.7 minutes of 48 kHz 16-bit stereo PCM (192 KB per second), about 35 minutes as 4:1 ADPCM, and about 104 minutes at 128 kbps. Dialogue: 10 hours of 48 kHz mono PCM is 3.46 GB; at 48 kbps Opus it is 216 MB, 16 times smaller. The 48 kbps figure is an example bitrate, not a recommendation. [Add: your own project's audio memory budget or VO hours, if you can share them.]
 
-## 15. Voice chat
+## 16. Voice chat
 
 ~1 min. The third problem. Voice chat became standard on console with Xbox Live in 2002. The codec has three jobs: low bitrate, because upstream bandwidth is shared with the game's own network traffic; low delay, with frames of 20 ms or less; and surviving packet loss, with concealment and forward error correction. Mono PCM at 48 kHz is 768 kbps; Opus speech at around 24 kbps is 32 times smaller (24 kbps is an example; apps vary). Lineage: Speex (2003) was the open speech codec of the 2000s; Skype's SILK and Xiph's CELT were merged into Opus in 2012, which is why Opus handles both speech and music.
 
-## 16. Codecs in streaming
+## 17. Codecs in streaming
 
 ~1.5 min. Codecs matter well outside the game build. Contrast first: in a game, 'streaming' means reading a file from disk at a bitrate you chose at build time. Over a network, the codec has to cope with a connection that changes. Music services: Spotify's web player is AAC at 128 or 256 kbps and its lossless tier is FLAC (per Spotify's support page); its apps have long used Ogg Vorbis; Apple Music is AAC with ALAC for lossless; YouTube serves Opus and AAC. Video on demand: adaptive bitrate over HLS or DASH means the same audio is encoded at several bitrates and the player switches per segment; Netflix adopted xHE-AAC on mobile for exactly this, plus loudness management. Live streams: AAC is the usual ingest format, encoded in real time by OBS or the console. Voice: Opus, built for low delay and packet loss; WebRTC requires it. Cloud gaming: usually Opus, with audio sharing a tight delay budget with video and input. The cloud gaming row and the Vorbis and YouTube details are from general knowledge; confirm before presenting. The point for this audience: three codecs they will meet again in the toolbox section run most of the internet's audio.
 
-## 17. Hardware
+## 18. Hardware
 
 ~1 min. The last problem: hardware limits. Dedicated decoders: from the PlayStation's sound chip to the Xbox 360's XMA hardware to AAC decoders in phones, moving decode off the CPU frees it for the game and saves power. Storage: optical discs seek slowly, so music and VO stream as compressed data, and cartridge and download sizes cap the total. Output links: optical S/PDIF only carries stereo PCM, so 5.1 over optical needs a live Dolby Digital or DTS encode (the original Xbox did this in real time); Bluetooth is narrower still. From general knowledge; verify specifics before presenting. [Add: a hardware constraint you've hit yourself.]
 
-## 18. The past
+## 19. The past
 
 Transition. About 3 minutes for this section: a short history of the codecs games have used, then what ADPCM and MP3 left behind.
 
-## 19. A short history
+## 20. A short history
 
 ~1.5 min. Don't linger on dates. The arc: predictive coding (ADPCM) → perceptual coding (MP3, AAC) → royalty-free perceptual (Vorbis) → platform-native hardware codecs (XMA, ATRAC9) → a single flexible open codec (Opus). Dates: ADPCM research at Bell Labs early 1970s; MPEG-1 Layer III 1993; AAC 1997; Vorbis 1.0 2002; XMA with Xbox 360 2005; ATRAC9 with PS Vita 2011; Opus as RFC 6716 in 2012.
 
-## 20. ADPCM and MP3
+## 21. ADPCM and MP3
 
 ~1.5 min. ADPCM is 4 bits per sample, so a fixed 4:1, with trivial decode and exact random access. That's why it's still the default for footsteps, impacts, UI. MP3's frame-based encoder adds delay and padding, so loops click or gap unless your tools trim it; plus licensing until patents lapsed around 2017. Lesson carries forward: the ratio is only one column of the scorecard. Fun aside: ADPCM is also alive in emulation. A PlayStation emulator has to re-implement the console's sound chip, ADPCM decoder included, to play the original game data; jsgroth's blog post on the PS1 SPU walks through it: https://jsgroth.dev/blog/posts/ps1-spu-part-1/ [Skim the post before presenting so you can describe what it covers.]
 
-## 21. The modern toolbox
+## 22. The modern toolbox
 
 Transition. About 13 minutes for this section.
 
-## 22. Codecs in use today
+## 23. Codecs in use today
 
 ~2.5 min. This is the slide people photograph. Walk row by row but keep it brisk; the next slides go deeper on Opus vs Vorbis and the platform codecs. Unreal's sound asset options are Bink Audio, RAD Audio, ADPCM, PCM, Opus, Platform Specific and Project Defined; Vorbis is no longer a first-class choice there. Bink Audio deserves a moment: it is a perceptual codec built for games and tuned for cheap decoding. Epic describes it as capable of perceptually lossless 10:1 compression with decode speeds closer to ADPCM than MP3 or Vorbis, and Unreal's documentation lists it as the default, with CPU usage comparable to ADPCM. It came from RAD Game Tools and has been free with Unreal since 4.27 (June 2021). The callback on the slide: Titanfall (2014) shipped uncompressed audio because decoding cost too much CPU on min-spec PCs, and Epic says Apex Legends, from the same studio, uses Bink Audio for all playback with 80 to 100 simultaneous voices. Reading those as the same problem solved a second way is an inference; neither source says so, so present it as your observation. Apex does not run on Unreal, so Bink is not strictly Unreal-only; how it is licensed outside Unreal, and whether Wwise supports it, are unconfirmed. RAD Audio is Epic's newer codec listed beside Bink in recent Unreal versions; its details are unconfirmed too. Sources: https://www.unrealengine.com/en-US/blog/bink-video-and-bink-audio-now-available-in-unreal-engine-for-free and https://dev.epicgames.com/documentation/en-us/unreal-engine/importing-audio-files Platform Specific maps to each console's native format and doesn't support seeking. Wwise column is from experience; double-check Opus/AAC/XMA/ATRAC9 availability against the Wwise version and platforms you ship on.
 
-## 23. Vorbis and Opus
+## 24. Vorbis and Opus
 
 ~2.5 min. Opus was built for real-time comms, which is why it's so strong on speech and at low bitrates; CELT handles music, SILK handles speech, and hybrid mode blends them. Vorbis is still perfectly good at higher bitrates and is everywhere. The honest framing: Opus is the better default for new work, but switching a shipped pipeline isn't free. [Add: your own listening-test results or bitrates if you have them.]
 
-## 24. Platform codecs
+## 25. Platform codecs
 
 ~2 min. The pattern: platform codecs win on decode cost because hardware or a tuned native decoder does the work, and lose on portability. On console, that freed CPU can mean more simultaneous voices. [Check and state current-gen specifics for your platforms here; these vary by console generation and SDK, and some details are under NDA.]
 
-## 25. Codecs you didn't choose
+## 26. Codecs you didn't choose
 
 ~1 min. Your mix is rarely the last encode. Wireless headsets re-encode the final mix and add latency. Bluetooth uses SBC, AAC, aptX or LDAC, and LE Audio standardizes on LC3. LC3plus is the extended version (ETSI TS 103 634), built for low delay: frame sizes of 10, 7.5, 5, 2.5 and even 1.25 ms, sample rates up to 96 kHz, and packet-loss concealment described as up to three times more robust than LC3's. Fraunhofer, its developer, quotes end-to-end latency down to 7 ms and names gaming headsets as a target, which is the dedicated-dongle kind more than plain Bluetooth. Those are the developer's figures. Source: https://www.iis.fraunhofer.de/en/ff/amm/communication/lc3.html TVs and soundbars: when a console is set to bitstream output, it encodes the mix live as Dolby Digital or DTS. Capture, livestreams and cloud gaming encode it again as AAC or Opus. Each lossy generation compounds artifacts (tandem coding), so a mix that's already squeezed hard in-engine can fall apart downstream. [Optional: a personal example, e.g. hearing your mix through a Bluetooth headset or on a stream.]
 
-## 26. Choose a codec per asset class, not per project.
+## 27. Choose a codec per asset class, not per project.
 
 ~30 sec. Pause here. This is the one sentence you want people to repeat. Footsteps, music, VO and ambience have different needs; one global setting serves none of them well.
 
-## 27. A decision order
+## 28. A decision order
 
-~3 min. The framework attendees take home. Walk an example asset through each question: a footstep stops at 1; a VO line stops at 2; a music stem stops at 3; and on a CPU-starved console, 4 can override 3. The Unreal line: the order above is written from a Wwise-style menu. In Unreal, Bink Audio is the default and is designed for exactly the cases in 1, 3 and 4 (perceptual-codec size at close to ADPCM's decode cost), so start there and change only what you measure a reason to change. Bink is not a network codec, so voice chat still means Opus. Emphasize the final step: numbers get you close, ears decide. [Optional: show a real before/after from your project here.]
+~3 min. The framework attendees take home. Walk an example asset through each question: a footstep stops at 1; a VO line stops at 2; a music stem stops at 3; and on a CPU-starved console, 4 can override 3. The Unreal line: the order above is written from a Wwise-style menu. In Unreal, Bink Audio is the default and is designed for exactly the cases in 1, 3 and 4 (perceptual-codec size at close to ADPCM's decode cost), so start there and change only what you measure a reason to change. Bink is not a network codec, so voice chat still means Opus. The Wwise line links to Audiokinetic's own guide (Mathieu Jean, 2023), which measures how many streams each codec can decode per platform; on a 2018 Core i7 PC it gives about 9,500 for ADPCM, 2,300 to 5,700 for Vorbis and 500 to 1,300 for Opus, depending on quality. Be aware that it disagrees with question 1 here: for short, frequent sounds it recommends Vorbis, keeps ADPCM for low-end mobile when CPU is tight, and names Vorbis (or Opus where hardware decodes it) as the default. Source: https://www.audiokinetic.com/en/community/blog/a-guide-for-choosing-the-right-codec/ Emphasize the final step: numbers get you close, ears decide. [Optional: show a real before/after from your project here.]
 
-## 28. What to measure
+## 29. What to measure
 
 ~2 min. A checklist version of the framework, for people who want to audit an existing project. Don't read every card; pick the two that bite most often (decode CPU at peak voices, and loop points).
 
-## 29. The frontier
+## 30. The frontier
 
 Transition. About 15 minutes for this section. Set expectations: we're separating what's useful now from what's research. The section is arranged by the problem each technology might solve in a game, not by how it works: sound effects in memory (QOA), delivering a finished spatial mix (APAC and IAMF), voice chat (Opus 1.6, IVAS, then neural codecs), and generated voices (AI voices are built on codecs). It ends with the barriers and an outlook. Every slide should answer three things for the room: what it is, what to look for, and what to do with it.
 
-## 30. QOA: the Quite OK Audio format
+## 31. QOA: the Quite OK Audio format
 
 ~1.5 min. First problem: sound effects in memory, which is ADPCM's job. The frontier is not only neural. QOA (Quite OK Audio) is a deliberately simple time-domain codec in the ADPCM tradition, by Dominic Szablewski, who also made the QOI image format. Twenty samples of 16-bit PCM go into one 64-bit slice: a 4-bit scale factor and twenty 3-bit residuals, predicted with a 4-tap LMS filter. That is 3.2 bits per sample, a fixed 5:1 (ADPCM is 4 bits per sample, 4:1). At 48 kHz stereo that works out to about 310 kbps once frame headers are included. The project site quotes 278 kbit/s for 44.1 kHz stereo, which is the same arithmetic counted in units of 1,024 bits. The author's claims are better quality than ADPCM and decoding about 3× faster than Ogg Vorbis. The reference encoder and decoder are about 400 lines of C under the MIT licence, and the spec is a single page. Adoption so far is in open-source projects: Godot 4.3 and later, raylib, and a range of players and language ports. Honest take: a possible ADPCM replacement for short SFX, not a competitor to Opus for music or VO, because the ratio is fixed. Caveats: the quality and speed figures are the author's own, not independent measurements, and the README warns that the reference implementation has not been fuzzed, so it should not be fed untrusted input. I did not find QOA in Wwise, FMOD or Unreal, but did not check exhaustively; verify before saying so on stage. The QOI connection is from general knowledge. Sources: https://github.com/phoboslab/qoa and https://qoaformat.org/
 
-## 31. Spatial delivery: APAC and IAMF
+## 32. Spatial delivery: APAC and IAMF
 
 ~2 min. Second problem: delivering a finished spatial mix to a device. Two formats, one job. Both carry a mix that is already made (channel beds, Ambisonics, loudness information) and leave the final rendering to the playback device. Neither replaces a runtime codec. What to tell the room: these matter for cinematics, trailers and immersive video, so the practical step is to find out where that content will play and deliver what the platform decodes. APAC background: APAC quietly appeared in iOS 13 / macOS Catalina and was formally defined with iOS 18 (iPhone 16 spatial capture). At WWDC25 Apple introduced ASAF, delivered as APAC, and made APAC required for Apple Immersive Video on Vision Pro. Apple's spec covers scene-based (Ambisonics) and channel layouts, HLS segmentation, and embedded loudness/DRC metadata. The 768 kbps ceiling is from press coverage, not Apple's spec; say "reported". Honest take: a delivery codec for pre-rendered spatial content, not a replacement for your runtime codec. Sources: Apple's APAC developer PDF; WWDC25 coverage. IAMF background: IAMF (Immersive Audio Model and Formats) comes from the Alliance for Open Media, the group behind the AV1 video codec; version 1.1.0 is an AOM Final Deliverable dated 24 October 2024. The key point for this room: IAMF is not a codec. It is a model and container that wraps existing codecs (Opus, AAC-LC, FLAC or linear PCM) and adds the metadata to turn their streams into an immersive presentation. Two terms from the spec: an audio element is a 3D audio signal built from one or more coded substreams, either channel-based (layouts such as 3.1.2, 5.1.2 and 7.1.4) or scene-based (Ambisonics); a mix presentation describes how the elements are rendered and mixed for playback on a given setup, and carries loudness information. It can be stored as a standalone sequence or inside MP4 (ISO-BMFF), and has three profiles: Simple, Base and Base-Enhanced. The spec lists its targets as internet audio streaming, broadcasting, file download, gaming, communication, and virtual and augmented reality. Adoption: Google and Samsung announced Eclipsa Audio in January 2025, an open-source spatial audio format based on IAMF under the AOM royalty-free licence, with YouTube uploads and Samsung's 2025 TV line-up named first, Chrome and Android to follow, and a free Pro Tools plugin. Honest take for games: gaming is named as a target, but what exists today is delivery of finished mixes, so think trailers, cinematics and video, the same slot as APAC. I did not find object-based audio in this version of the spec, and could not confirm the per-profile channel limits, so do not quote either. The AV1 connection is from general knowledge. Sources: https://aomediacodec.github.io/iamf/v1.1.0.html and https://opensource.googleblog.com/2025/01/introducing-eclipsa-audio-immersive-audio-for-everyone.html
 
-## 32. Opus 1.6: neural help for voice chat
+## 33. Opus 1.6: neural help for voice chat
 
 ~1.5 min. Third problem: voice chat. Start with what is actually shipping: neural networks helping a classic codec instead of replacing it. The message for the room is simple: the Opus you already ship has learned to hide lost packets, ride out dropouts and make low-bitrate speech clearer, but none of it is on unless someone turns it on. So ask which features your engine's or middleware's Opus build enables, and test voice chat at low bitrates and with packet loss, not only on a clean office network. The names on the right are what to look for in release notes and build settings. Detail, if asked: Opus 1.6 was released on December 15, 2025 and stays fully compatible with RFC 6716, the 2012 standard. The neural features arrived over two releases; walk the table. Deep PLC (1.5, March 2024): packet-loss concealment. When a packet is lost, a network extrapolates plausible speech instead of repeating or fading. Decoder only, about 1 MB, about 1% of a laptop CPU core. DRED, deep redundancy (1.5): a neural coder squeezes up to one second of earlier audio into each packet for about 12 to 32 kbps of overhead, so each 20 ms frame is effectively sent 50 times and long bursts of loss can be recovered. About 1% CPU. In 1.6 it is more robust to noisy and reverberant speech and its models are about 3 times smaller (600 kB, down from 1,800 kB); the 1.6 model is not compatible with 1.5's, and the mismatch is handled gracefully. LACE and NoLACE (1.5): enhancers that run after the decoder and repair low-bitrate speech. LACE is about 0.15% of a CPU core and 0.5 MB; NoLACE is stronger at about 0.75% and 1.1 MB. Bandwidth extension, BWE (1.6): at low bitrates Opus codes speech as wideband, 0 to 8 kHz, and a network on the decoder side generates the 8 to 20 kHz band. It works on speech from any earlier Opus version. Results, all from the Opus team's own listening tests, so say so: with NoLACE plus BWE, 9 kbps speech reaches similar quality to Opus 1.4 fullband at 18 kbps, and at 9 kbps and above Opus exceeds a purely neural codec like EnCodec (one of the fully neural codecs two slides from now). For games: all of this is speech, so it matters for voice chat first. Every neural feature is disabled by default and needs build options (--enable-deep-plc, --enable-dred, --enable-osce) plus a raised decoder complexity setting, so check what your middleware's Opus build actually turns on. The CPU figures are from the 1.5 release notes; the 1.6 page gives no CPU figure for BWE. Not neural, but also new in 1.6: a 24-bit API, and Opus HD (experimental) for 96 kHz audio at up to 2 Mb/s. Sources: https://opus-codec.org/demo/opus-1.6/ and https://opus-codec.org/demo/opus-1.5/
 
-## 33. IVAS: immersive voice from the phone standards
+## 34. IVAS: immersive voice from the phone standards
 
 ~1.5 min. Still voice chat, now spatial. This is the telecom world's immersive codec. IVAS (Immersive Voice and Audio Services) is the new 3GPP voice communication codec, specified in Release 18 and co-created by 13 companies, Nokia among them (Dolby, Fraunhofer IIS and Qualcomm are others). It extends EVS, the widely deployed mono codec behind today's mobile voice calls, into immersive audio, and is backwards compatible with it. Inputs: mono, stereo, multichannel layouts from 5.1 up to 7.1+4, objects, scene-based audio (Ambisonics up to 3rd order), and MASA, metadata-assisted spatial audio, a parametric format meant for capture on a phone's microphones; combinations of these are allowed. Bitrates run from 13.2 to 512 kbps with 32 to 38 ms of algorithmic delay. Rendering is part of the codec: loudspeakers, a phone's stereo speakers, or binaural over headphones with or without room effect and head tracking. 3GPP's stated targets are conversational voice, multi-stream teleconferencing, VR conversation, AR and MR, and user-generated content streaming. Honest take for games: this is where spatial voice chat could come from as a standard, and like APAC it is a delivery codec, so your engine still renders the interactive mix. Neither source mentions games, and I found nothing on middleware support or licensing terms, so do not claim either way. Release 18 was finalised in 2024, which is from general knowledge; verify. Sources: https://www.nokia.com/multimedia/audio/technology-and-standards/ivas-codec/ and https://www.3gpp.org/technologies/ivas-highlights
 
-## 34. Neural codecs
+## 35. Neural codecs
 
 ~2 min. Still voice chat, further out: speech at bitrates classic codecs cannot reach. Instead of hand-designed transforms and psychoacoustic models, an encoder network learns a compact representation; residual vector quantization turns it into discrete tokens; a decoder network reconstructs audio. Bitrates are tiny compared with classic codecs. The tokens are also what many generative audio models are built on, which is part of why this research moves so fast, and is the subject of the next slide. What to listen for: a classic codec fails with artifacts you recognise, like hiss, warble or pre-echo. A neural decoder fails by producing something clean and plausible that was not in the original, such as a slightly different consonant or timbre. Double-check the exact bitrate ranges against the papers before presenting.
 
-## 35. AI voices are built on codecs
+## 36. AI voices are built on codecs
 
 ~2 min. Fourth problem: generated voices. This is why neural codecs matter to people who will never ship one as a compression format. Many current voice generators work in two stages: a language model predicts a sequence of codec tokens, and a neural codec's decoder turns those tokens into a waveform. The VALL-E paper (January 2023) describes itself in exactly these terms, as a "neural codec language model" trained on the discrete codes of an off-the-shelf neural audio codec; AudioLM (2022) casts audio generation as language modeling over discrete tokens; Moshi (Kyutai, 2024) uses its own codec, Mimi, at 12.5 frames per second and about 1.1 kbps, and reports about 200 ms practical latency. So when you evaluate an AI voice tool, you are also evaluating a codec, and the codec sets the ceiling. Walk the four rows as questions to ask a vendor. Bandwidth: a codec that works at 16 or 24 kHz cannot give you a 48 kHz voice, whatever the model does. Latency: how many tokens per second, and how much lookahead, decide time to first audio. Where it runs: on device is a model inference per voice, the same cost-per-voice barrier as on the next slide; in the cloud is a round trip and a dependency. Repeatability: generation is sampled, so the same line can differ between runs, which matters for QA, lip sync and localization. The catch at the bottom is the one to remember: a generative decoder fails by producing something plausible and wrong. Not every generator works this way; some use diffusion or flow-based models instead of a language model over tokens, so say "many", not "all". Background if asked about language models inside codecs for compression: EnCodec's paper reports that a lightweight Transformer compresses its output by up to 40% more while staying faster than real time; LMCodec (Google, 2023) is causal and uses one Transformer to generate the fine tokens from the coarse ones, so they never need to be sent, and another to drive entropy coding. Second, a codec built as the tokenizer for a language model: Mimi is the codec inside Kyutai's Moshi (2024), running at 12.5 frames per second and about 1.1 kbps, with the first codebook carrying meaning; Moshi's paper reports 160 ms theoretical and 200 ms practical latency. ZipCodec (arXiv, September 2026) pushes to 0.80 kbps at 6.25 frames per second with an 842M-parameter model, real-time for one stream on a consumer CPU. Unverified details: that VALL-E used EnCodec and AudioLM used SoundStream is from general knowledge (the abstracts confirm the approach but do not name the codecs), and the Mimi figures are from memory of the paper; verify. Sources: https://arxiv.org/abs/2301.02111 and https://arxiv.org/abs/2209.03143
 
-## 36. Barriers in games
+## 37. Barriers in games
 
 ~2 min. The honest part. The killer is cost per voice: classic codecs decode many streams cheaply on CPU; a neural decoder runs a model per stream. Latency and training data are the next two. Determinism matters for replays, networking and QA. None of these are permanent, but together they explain why you won't see a neural codec in your middleware dropdown for a while.
 
-## 37. Where neural audio shows up first
+## 38. Where neural audio shows up first
 
 ~2 min. Now: Opus 1.5 (March 2024) added ML features, Deep Redundancy (DRED) for packet-loss recovery and LACE/NoLACE decoder enhancement, so ML is already shipping inside a classic codec; Opus 1.6 (December 2025, covered earlier in this section) added neural bandwidth extension on top. Next: StreamCodec (2025 paper) reports 20 ms fixed latency, ~20× real time on CPU, a 7M-parameter model, at 1.5 kbps for 16 kHz speech. Speculative: clearly label this as opinion. If generative audio becomes common in games, storing tokens instead of waveforms could change how we think about asset budgets.
 
-## 38. Takeaways
+## 39. Takeaways
 
 ~1 min. Recap and hand off to Q&A.
 
-## 39. Thank you
+## 40. Thank you
 
-Q&A. Point to the QR codes: LinkedIn, email, GitHub. Likely questions: "What bitrate do you use for X?" (answer with your asset-class defaults), "Is Opus decode too heavy on Switch/mobile?" (profile at peak voice count), "When will neural codecs be in Wwise/FMOD?" (point back to the barriers slide).
+Q&A. Point to the QR codes: LinkedIn, email, GitHub. The addresses under them are clickable in the shared deck and PDF. Likely questions: "What bitrate do you use for X?" (answer with your asset-class defaults), "Is Opus decode too heavy on Switch/mobile?" (profile at peak voice count), "When will neural codecs be in Wwise/FMOD?" (point back to the barriers slide).

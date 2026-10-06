@@ -4,6 +4,7 @@
     "cover",
     "about",
     "motivation",
+    "outline",
     "titanfall",
     "div-basics",
     "pcm-what",
@@ -43,7 +44,7 @@
   ],
   "sections": {
     "s1": {
-      "description": "Who is speaking, why this talk, and Titanfall as an example of a codec tradeoff",
+      "description": "Who is speaking, why this talk, the outline, and Titanfall as an example of a codec tradeoff",
       "start": "cover"
     },
     "s2": {

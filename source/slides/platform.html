@@ -1,8 +1,0 @@
-<section id="platform" style="background:#F7F6F2;color:#161616;font-family:'Libre Franklin', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:48px">
-<h2 style="font-size:56px;font-weight:700;line-height:1.1;letter-spacing:-1px;color:#161616">Platform codecs</h2>
-<table style="font-size:28px;color:#161616"><tr><th style="width:14%;text-align:left">Codec</th><th style="width:20%;text-align:left">Platform</th><th style="width:40%;text-align:left">What you get</th><th style="width:26%;text-align:left">What you give up</th></tr><tr><td>XMA</td><td>Xbox</td><td>Hardware decode; CPU freed for more voices</td><td>Xbox only</td></tr><tr><td>ATRAC9</td><td>PlayStation</td><td>Low latency and low decode cost</td><td>PlayStation only</td></tr><tr><td>AAC</td><td>Apple, Android</td><td>Hardware decoders on most phones</td><td>Licensing; loop padding</td></tr></table>
-<p style="font-size:28px;line-height:1.4;color:#161616;">Each platform gets its own encode. Budget build time and QA for it.</p>
-<p style="position:absolute;left:128px;bottom:64px;width:1000px;font-size:24px;color:#5C5C5C">The modern toolbox</p>
-<p style="position:absolute;right:128px;bottom:64px;width:200px;font-size:24px;text-align:right;font-family:'IBM Plex Mono', 'Courier New', monospace;color:#5C5C5C">24</p>
-<aside>~2 min. The pattern: platform codecs win on decode cost because hardware or a tuned native decoder does the work, and lose on portability. On console, that freed CPU can mean more simultaneous voices. [Check and state current-gen specifics for your platforms here; these vary by console generation and SDK, and some details are under NDA.]</aside>
-</section>

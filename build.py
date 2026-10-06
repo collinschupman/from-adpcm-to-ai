@@ -4,9 +4,15 @@
 Usage:  python3 build.py              # deck with speaker notes
         python3 build.py --no-notes   # deck only: notes left out of index.html
 
-source/deck.json lists the slide order; each slide is one file in
-source/slides/<id>.html holding a single 1920x1080 <section>. Speaker
-notes live in the <aside> at the end of each slide.
+source/deck.json lists the slide order by id. Each slide is one file
+holding a single 1920x1080 <section>, with its speaker notes in the
+<aside> at the end.
+
+Every build keeps the files in step with that order:
+  source/slides/NN-<id>.html   slides in the deck, numbered by page
+  source/unused/<id>.html      slides not in the deck right now
+To cut a slide, remove its id from deck.json; to bring one back, add its
+id again. The page number printed on each slide is updated to match.
 """
 import html
 import json
@@ -16,6 +22,10 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent
 SRC = ROOT / "source"
+SLIDES = SRC / "slides"
+UNUSED = SRC / "unused"
+PAGE_NUMBER = re.compile(
+    r"(text-align:right;font-family:'IBM Plex Mono', 'Courier New', monospace;color:#[0-9A-Fa-f]{6}\">)(\d+)(</p>)")
 
 TEMPLATE = """<!doctype html>
 <html lang="en">
@@ -133,15 +143,55 @@ def plain(markup):
     return html.unescape(re.sub(r"<[^>]+>", "", markup)).strip()
 
 
+def slide_id(path):
+    return re.sub(r"^\d+-", "", path.stem)
+
+
+def arrange(order):
+    """Rename and move slide files so the folders match the deck order."""
+    if len(set(order)) != len(order):
+        sys.exit("deck.json lists a slide more than once.")
+    UNUSED.mkdir(exist_ok=True)
+    found = {}
+    for folder in (SLIDES, UNUSED):
+        for path in sorted(folder.glob("*.html")):
+            sid = slide_id(path)
+            if sid in found:
+                sys.exit(f"Two files for slide '{sid}': {found[sid]} and {path}")
+            found[sid] = path
+    missing = [sid for sid in order if sid not in found]
+    if missing:
+        sys.exit("deck.json names slides with no file: " + ", ".join(missing))
+    width = max(2, len(str(len(order))))
+    paths, moved = [], 0
+    for number, sid in enumerate(order, 1):
+        want = SLIDES / f"{number:0{width}d}-{sid}.html"
+        if found[sid] != want:
+            found[sid].rename(want)
+            moved += 1
+        paths.append(want)
+    for sid, path in found.items():
+        want = UNUSED / f"{sid}.html"
+        if sid not in order and path != want:
+            path.rename(want)
+            moved += 1
+    return paths, moved
+
+
 def main():
     with_notes = "--no-notes" not in sys.argv[1:]
     deck = json.loads((SRC / "deck.json").read_text(encoding="utf-8"))
+    paths, moved = arrange(deck["order"])
     slides, notes = [], ["# Speaker notes", "", deck["title"], ""]
-    for number, slide_id in enumerate(deck["order"], 1):
-        text = (SRC / "slides" / f"{slide_id}.html").read_text(encoding="utf-8").strip()
+    for number, (slide_id_, path) in enumerate(zip(deck["order"], paths), 1):
+        original = path.read_text(encoding="utf-8")
+        numbered = PAGE_NUMBER.sub(lambda m: m.group(1) + str(number) + m.group(3), original)
+        if numbered != original:
+            path.write_text(numbered, encoding="utf-8")
+        text = numbered.strip()
         title = re.search(r"<h[12][^>]*>(.*?)</h[12]>", text, re.S)
         aside = re.search(r"<aside>(.*?)</aside>", text, re.S)
-        notes += [f"## {number}. {plain(title.group(1)) if title else slide_id}", "",
+        notes += [f"## {number}. {plain(title.group(1)) if title else slide_id_}", "",
                   plain(aside.group(1)) if aside else "(no notes)", ""]
         if not with_notes:
             text = re.sub(r"\s*<aside>.*?</aside>", "", text, flags=re.S)
@@ -149,11 +199,12 @@ def main():
 
     page = TEMPLATE.replace("__TITLE__", html.escape(deck["title"])).replace("__SLIDES__", "\n".join(slides))
     (ROOT / "index.html").write_text(page, encoding="utf-8")
+    tidy = f" Renamed or moved {moved} slide files to match the deck order." if moved else ""
     if with_notes:
         (ROOT / "speaker-notes.md").write_text("\n".join(notes), encoding="utf-8")
-        print(f"Built index.html and speaker-notes.md from {len(slides)} slides.")
+        print(f"Built index.html and speaker-notes.md from {len(slides)} slides.{tidy}")
     else:
-        print(f"Built index.html from {len(slides)} slides, without speaker notes.")
+        print(f"Built index.html from {len(slides)} slides, without speaker notes.{tidy}")
 
 
 if __name__ == "__main__":
