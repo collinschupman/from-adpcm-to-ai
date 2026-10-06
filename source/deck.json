@@ -1,26 +1,21 @@
 {
-  "title": "From ADPCM to AI: The Past, Present and Future of Game Audio Codecs",
+  "title": "Demystifying Game Audio Codecs: What they solve, how to choose, and what's next",
   "order": [
     "cover",
     "about",
-    "motivation",
+    "stakes",
     "outline",
-    "titanfall",
     "div-basics",
     "pcm-what",
     "pcm",
     "pcm-streaming",
+    "titanfall",
     "codec-basics",
-    "stakes",
-    "voice-path",
-    "codec-anatomy",
-    "samples",
-    "memory",
-    "voip",
-    "streaming",
-    "hardware",
+    "codec-levers",
+    "codec-gotchas",
     "div-past",
     "lineage",
+    "samples",
     "legacy",
     "div-modern",
     "toolbox",
@@ -44,15 +39,15 @@
   ],
   "sections": {
     "s1": {
-      "description": "Who is speaking, why this talk, the outline, and Titanfall as an example of a codec tradeoff",
+      "description": "Who is speaking, what a codec setting affects, and the outline",
       "start": "cover"
     },
     "s2": {
-      "description": "Raw PCM and its cost, codec basics, what a codec setting affects, the path of a voice, how a perceptual codec works, and the problems codecs solve in games: samples, memory, voice chat, streaming and hardware",
+      "description": "What digital audio is, the cost of raw PCM, Titanfall as an example of the tradeoff, and codec basics: types, levers and gotchas",
       "start": "div-basics"
     },
     "s3": {
-      "description": "The past: a short history of game audio codecs, then ADPCM and MP3",
+      "description": "The past: a short history of game audio codecs, sample-based audio on early consoles, then ADPCM and MP3",
       "start": "div-past"
     },
     "s4": {
