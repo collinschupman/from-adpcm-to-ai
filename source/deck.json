@@ -10,22 +10,28 @@
     "pcm",
     "pcm-streaming",
     "titanfall",
+    "codec-bitrate",
+    "codec-ratios",
+    "codec-cpu",
+    "codec-gotchas",
     "codec-basics",
     "codec-focus",
     "codec-predictive",
     "adpcm",
     "codec-perceptual",
+    "codec-bitrate-trade",
+    "codec-cbr-vbr",
     "vorbis",
     "opus",
     "bink-rad",
     "platform",
-    "codec-bitrate",
-    "codec-ratios",
-    "codec-cpu",
-    "codec-gotchas",
     "codec-hardware",
+    "div-choose",
+    "choose-goal",
+    "choose-asset",
     "framework",
     "rule",
+    "hw-not-free",
     "checklist",
     "div-frontier",
     "qoa",
@@ -36,6 +42,7 @@
     "ai-voices",
     "barriers",
     "landing",
+    "div-takeaways",
     "takeaways",
     "thanks"
   ],
@@ -49,8 +56,8 @@
       "start": "div-basics"
     },
     "s4": {
-      "description": "Choosing: the toolbox summary, a decision order and what to measure",
-      "start": "framework"
+      "description": "How to choose: a decision order, the per-asset-class rule, and what to measure",
+      "start": "div-choose"
     },
     "s5": {
       "description": "The frontier, arranged by the problem each technology might solve: sound effects in memory (QOA), spatial delivery (APAC and IAMF), voice chat (Opus 1.6, IVAS, neural codecs) and generated voices, then barriers and outlook",
@@ -58,7 +65,7 @@
     },
     "s6": {
       "description": "Takeaways and questions",
-      "start": "takeaways"
+      "start": "div-takeaways"
     }
   }
 }
