@@ -11,19 +11,21 @@
     "pcm-streaming",
     "titanfall",
     "codec-basics",
-    "codec-levers",
-    "codec-gotchas",
-    "div-past",
-    "lineage",
-    "samples",
-    "legacy",
-    "div-modern",
-    "toolbox",
-    "opus-vorbis",
+    "codec-focus",
+    "codec-predictive",
+    "adpcm",
+    "codec-perceptual",
+    "vorbis",
+    "opus",
+    "bink-rad",
     "platform",
-    "beyond-build",
-    "rule",
+    "codec-bitrate",
+    "codec-ratios",
+    "codec-cpu",
+    "codec-gotchas",
+    "codec-hardware",
     "framework",
+    "rule",
     "checklist",
     "div-frontier",
     "qoa",
@@ -43,16 +45,12 @@
       "start": "cover"
     },
     "s2": {
-      "description": "What digital audio is, the cost of raw PCM, Titanfall as an example of the tradeoff, and codec basics: types, levers and gotchas",
+      "description": "What digital audio is, the cost of raw PCM, Titanfall, codec families, how predictive and perceptual codecs work, the codecs themselves (ADPCM, Vorbis, Opus, Bink and RAD Audio, platform codecs), then bitrate, ratios, CPU, gotchas and hardware acceleration",
       "start": "div-basics"
     },
-    "s3": {
-      "description": "The past: a short history of game audio codecs, sample-based audio on early consoles, then ADPCM and MP3",
-      "start": "div-past"
-    },
     "s4": {
-      "description": "The modern toolbox: Opus, Vorbis, AAC, XMA, ATRAC9 and a decision framework",
-      "start": "div-modern"
+      "description": "Choosing: the toolbox summary, a decision order and what to measure",
+      "start": "framework"
     },
     "s5": {
       "description": "The frontier, arranged by the problem each technology might solve: sound effects in memory (QOA), spatial delivery (APAC and IAMF), voice chat (Opus 1.6, IVAS, neural codecs) and generated voices, then barriers and outlook",

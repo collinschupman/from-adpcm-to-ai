@@ -4,8 +4,8 @@ Collin Schupman's talk for GameSoundCon, Wednesday, October 21, 2026.
 
 ## Session description
 
-Every sound file in your game has a codec setting. It affects what that sound costs in disk space, memory, CPU, and latency, and ultimately how it sounds to the player. The setting is usually a dropdown, and it isn't obvious what you're trading when you change it.
+An audio codec choice affects a lot and can give developers several trade-offs: disk space, memory, CPU, latency, and ultimately how the game sounds and feels to our players.
 
-This talk explains those trades. We start with what uncompressed audio costs and what a codec does about it, then go through the codecs games ship with today and where each one fits. We finish with what's new in the field and what it could mean for games.
+These settings can be a little opaque without prior knowledge, even in commercial engines and middleware. Drawing on three shipped titles, unannounced R&D, and an earlier career in professional audio software, I'd like to build up codecs from the ground up in a practical way, starting with the basics, then getting into what you can ship with today and strategies for choosing. We'll finish with a peek into the future, and which technologies coming down the road might be of interest to game developers.
 
-It's for anyone who works on game audio, technical or not. There is no code, but there are numbers. You'll leave knowing how to choose, what to measure, and what questions to ask.
+This talk should interest anyone working a little closer to the technical side of game audio, regardless of experience level. We won't be looking at code, but we will cover some fundamentals. By the end, you'll have a better foundation for what to choose, what to measure, and what questions to ask.
