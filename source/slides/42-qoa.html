@@ -1,0 +1,27 @@
+<section id="qoa" style="background:#F7F6F2;color:#161616;font-family:'Libre Franklin', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:40px">
+<p data-kicker style="position:absolute;left:128px;top:76px;font-family:'IBM Plex Mono', 'Courier New', monospace;font-size:24px;color:#C2320A">Problem: sound effects in memory</p>
+<h2 style="font-size:56px;font-weight:700;line-height:1.1;letter-spacing:-1px;color:#161616">QOA: the Quite OK Audio format</h2>
+<div style="display:flex;align-items:start;gap:96px"><div style="display:flex;flex-direction:column;gap:4px"><p style="font-family:'IBM Plex Mono', 'Courier New', monospace;font-size:56px;font-weight:500;line-height:1.1;color:#C2320A">3.2</p><p style="font-size:24px;color:#5C5C5C">bits per sample</p></div><div style="display:flex;flex-direction:column;gap:4px"><p style="font-family:'IBM Plex Mono', 'Courier New', monospace;font-size:56px;font-weight:500;line-height:1.1;color:#161616">5:1</p><p style="font-size:24px;color:#5C5C5C">fixed, against 16-bit PCM</p></div><div style="display:flex;flex-direction:column;gap:4px"><p style="font-family:'IBM Plex Mono', 'Courier New', monospace;font-size:56px;font-weight:500;line-height:1.1;color:#161616">≈ 400</p><p style="font-size:24px;color:#5C5C5C">lines of C for the reference codec</p></div></div>
+<div style="display:flex">
+<div style="flex:1.3;display:flex;flex-direction:column;gap:12px;padding:0px 64px 0px 0px">
+<ul style="font-size:28px;line-height:1.45">
+<li>An open, MIT-licensed lossy codec by Dominic Szablewski, released in 2023.</li>
+<li>Works in the time domain like ADPCM: it predicts each sample and stores a 3-bit correction.</li>
+<li>By its author's account: better quality than ADPCM, and 3× faster to decode than Ogg Vorbis.</li>
+<li>The format spec fits on one page.</li>
+</ul>
+<p style="font-family:'IBM Plex Mono', 'Courier New', monospace;font-size:24px;line-height:1.4;padding:8px 0px 0px 0px"><a href="https://github.com/phoboslab/qoa" target="_blank" rel="noopener" onclick="event.stopPropagation()" style="color:#C2320A;text-decoration:underline">github.com/phoboslab/qoa</a></p>
+</div>
+<div style="flex:1;display:flex;flex-direction:column;gap:12px;padding:0px 0px 0px 64px;border-left:1px solid #CFCBC2">
+<h3 style="font-size:36px;font-weight:700;line-height:1.2;color:#161616">For game audio</h3>
+<ul style="font-size:28px;line-height:1.45">
+<li>Look for it if you are on Godot (4.3 and later), raylib or a custom engine.</li>
+<li>Try it where you use ADPCM today: short, busy SFX.</li>
+<li>Keep Opus or Vorbis for music and VO. QOA's ratio is fixed.</li>
+</ul>
+</div>
+</div>
+<p style="position:absolute;left:128px;bottom:64px;width:1000px;font-size:24px;color:#5C5C5C">The frontier</p>
+<p style="position:absolute;right:128px;bottom:64px;width:200px;font-size:24px;text-align:right;font-family:'IBM Plex Mono', 'Courier New', monospace;color:#5C5C5C">42</p>
+<aside>~1.5 min. First problem: sound effects in memory, which is ADPCM's job. The frontier is not only neural. QOA (Quite OK Audio) is a deliberately simple time-domain codec in the ADPCM tradition, by Dominic Szablewski, who also made the QOI image format. Twenty samples of 16-bit PCM go into one 64-bit slice: a 4-bit scale factor and twenty 3-bit residuals, predicted with a 4-tap LMS filter. That is 3.2 bits per sample, a fixed 5:1 (ADPCM is 4 bits per sample, 4:1). At 48 kHz stereo that works out to about 310 kbps once frame headers are included. The project site quotes 278 kbit/s for 44.1 kHz stereo, which is the same arithmetic counted in units of 1,024 bits. The author's claims are better quality than ADPCM and decoding about 3× faster than Ogg Vorbis. The reference encoder and decoder are about 400 lines of C under the MIT licence, and the spec is a single page. Adoption so far is in open-source projects: Godot 4.3 and later, raylib, and a range of players and language ports. Honest take: a possible ADPCM replacement for short SFX, not a competitor to Opus for music or VO, because the ratio is fixed. Caveats: the quality and speed figures are the author's own, not independent measurements, and the README warns that the reference implementation has not been fuzzed, so it should not be fed untrusted input. I did not find QOA in Wwise, FMOD or Unreal, but did not check exhaustively; verify before saying so on stage. The QOI connection is from general knowledge. Sources: https://github.com/phoboslab/qoa and https://qoaformat.org/</aside>
+</section>
